@@ -1,0 +1,29 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: hadoop-worker
+  namespace: hadoop
+spec:
+  selector:
+    matchLabels:
+      name: hadoop-worker
+  template:
+    metadata:
+      labels:
+        name: hadoop-worker
+    spec:
+      hostNetwork: true
+      serviceAccountName: hadoop-master
+      containers:
+      - name: hadoop-worker
+        image: eiswar/hadoop
+        command: ["/usr/local/hadoop/sbin/bootstrap.sh"]
+        args: ["worker"]
+        volumeMounts:
+        - mountPath: /hdfs
+          name: hdfs-data
+      volumes:
+      - name: hdfs-data
+        hostPath:
+          path: /hdfs

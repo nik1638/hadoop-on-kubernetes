@@ -1,0 +1,37 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hadoop-master
+  namespace: hadoop
+  labels:
+    name: hadoop-master
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      name: hadoop-master
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: hadoop-master
+    spec:
+      serviceAccountName: hadoop-master
+      containers:
+      - name: hadoop-master
+        image: eiswar/hadoop
+        command: ["/usr/local/hadoop/sbin/bootstrap.sh"]
+        args: ["master"]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - mountPath: /hdfs
+          name: hdfs-namenode-data
+      volumes:
+      - name: hdfs-namenode-data
+        persistentVolumeClaim:
+          claimName: hdfs-nn-pvc
